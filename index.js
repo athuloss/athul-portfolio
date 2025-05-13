@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.querySelector(".allskills");
     const items = Array.from(container.children);
 
-    // Clone items for a seamless effect
+    // Clone items for seamless effect
     items.forEach(item => {
         const clone = item.cloneNode(true);
         container.appendChild(clone);
@@ -10,27 +10,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let scrollPosition = 0;
     const scrollSpeed = 0.9;
-    let isScrolling = false;
     let isDragging = false;
     let startX;
     let scrollLeft;
 
     // Auto-scroll function
     function autoScroll() {
-        if (!isScrolling && !isDragging) {
+        if (!isDragging) {
             scrollPosition += scrollSpeed;
+
+            // Loop back for seamless scroll
             if (scrollPosition >= container.scrollWidth / 2) {
                 scrollPosition = 0;
             }
+
             container.scrollLeft = scrollPosition;
+        } else {
+            // Sync scroll position with manual scroll
+            scrollPosition = container.scrollLeft;
         }
+
         requestAnimationFrame(autoScroll);
     }
 
-    // Manual scroll handlers with improved sensitivity
+    // Desktop manual scroll
     container.addEventListener('mousedown', (e) => {
         isDragging = true;
-        isScrolling = true;
         startX = e.pageX;
         scrollLeft = container.scrollLeft;
         container.style.cursor = 'grabbing';
@@ -40,31 +45,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!isDragging) return;
         e.preventDefault();
         const x = e.pageX;
-        const walk = (startX - x) * 1.5; // Increased sensitivity
+        const walk = (startX - x) * 1.5;
         container.scrollLeft = scrollLeft + walk;
     });
 
     document.addEventListener('mouseup', () => {
         isDragging = false;
-        setTimeout(() => {
-            isScrolling = false;
-        }, 100);
         container.style.cursor = 'grab';
     });
 
-    // Prevent scroll bounce
-    container.addEventListener('scroll', () => {
-        if (container.scrollLeft <= 0) {
-            container.scrollLeft = container.scrollWidth / 2;
-        } else if (container.scrollLeft >= container.scrollWidth / 2) {
-            container.scrollLeft = 0;
-        }
-    });
-
-    // Touch events with improved sensitivity
+    // Touch manual scroll
     container.addEventListener('touchstart', (e) => {
         isDragging = true;
-        isScrolling = true;
         startX = e.touches[0].pageX;
         scrollLeft = container.scrollLeft;
     });
@@ -72,20 +64,68 @@ document.addEventListener("DOMContentLoaded", () => {
     container.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
         const x = e.touches[0].pageX;
-        const walk = (startX - x) * 1.5; // Increased sensitivity
+        const walk = (startX - x) * 1.5;
         container.scrollLeft = scrollLeft + walk;
     });
 
     container.addEventListener('touchend', () => {
         isDragging = false;
-        setTimeout(() => {
-            isScrolling = false;
-        }, 100);
     });
 
-    // Start auto-scroll
+    // Seamless scroll wrapping (only apply when not dragging)
+    container.addEventListener('scroll', () => {
+        if (isDragging) return;
+
+        if (container.scrollLeft <= 0) {
+            container.scrollLeft = container.scrollWidth / 2;
+            scrollPosition = container.scrollLeft;
+        } else if (container.scrollLeft >= container.scrollWidth / 2) {
+            container.scrollLeft = 0;
+            scrollPosition = container.scrollLeft;
+        }
+    });
+
+    // Start auto scroll
     autoScroll();
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 window.onload = function () {
     gsap.to(".Heading h1", { duration: 1, y: 0, opacity: 1 });
