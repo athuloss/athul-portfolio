@@ -27,11 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
         requestAnimationFrame(autoScroll);
     }
 
-    // Manual scroll handlers
+    // Manual scroll handlers with improved sensitivity
     container.addEventListener('mousedown', (e) => {
         isDragging = true;
         isScrolling = true;
-        startX = e.pageX - container.offsetLeft;
+        startX = e.pageX;
         scrollLeft = container.scrollLeft;
         container.style.cursor = 'grabbing';
     });
@@ -39,41 +39,48 @@ document.addEventListener("DOMContentLoaded", () => {
     container.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         e.preventDefault();
-        const x = e.pageX - container.offsetLeft;
-        const walk = (x - startX) * 2;
-        container.scrollLeft = scrollLeft - walk;
+        const x = e.pageX;
+        const walk = (startX - x) * 1.5; // Increased sensitivity
+        container.scrollLeft = scrollLeft + walk;
     });
 
-    container.addEventListener('mouseup', () => {
+    document.addEventListener('mouseup', () => {
         isDragging = false;
-        isScrolling = false;
+        setTimeout(() => {
+            isScrolling = false;
+        }, 100);
         container.style.cursor = 'grab';
     });
 
-    container.addEventListener('mouseleave', () => {
-        isDragging = false;
-        isScrolling = false;
-        container.style.cursor = 'grab';
+    // Prevent scroll bounce
+    container.addEventListener('scroll', () => {
+        if (container.scrollLeft <= 0) {
+            container.scrollLeft = container.scrollWidth / 2;
+        } else if (container.scrollLeft >= container.scrollWidth / 2) {
+            container.scrollLeft = 0;
+        }
     });
 
-    // Touch events
+    // Touch events with improved sensitivity
     container.addEventListener('touchstart', (e) => {
         isDragging = true;
         isScrolling = true;
-        startX = e.touches[0].pageX - container.offsetLeft;
+        startX = e.touches[0].pageX;
         scrollLeft = container.scrollLeft;
     });
 
     container.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-        const x = e.touches[0].pageX - container.offsetLeft;
-        const walk = (x - startX) * 2;
-        container.scrollLeft = scrollLeft - walk;
+        const x = e.touches[0].pageX;
+        const walk = (startX - x) * 1.5; // Increased sensitivity
+        container.scrollLeft = scrollLeft + walk;
     });
 
     container.addEventListener('touchend', () => {
         isDragging = false;
-        isScrolling = false;
+        setTimeout(() => {
+            isScrolling = false;
+        }, 100);
     });
 
     // Start auto-scroll
